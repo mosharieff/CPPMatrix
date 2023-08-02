@@ -14,6 +14,7 @@ class statpack {
 
     private:
 
+        // Cumulative Normal Distribution function
         double N(double x)
         {
             auto fx = [](double x){
@@ -66,6 +67,7 @@ class statpack {
         {
             std::vector<std::vector<double>> Y = m.LINEAR(y);
             std::vector<std::vector<double>> XTX, XTY;
+            // Computes pieces of the regression formula B = (XTX)^-1 XTy
             XTX = m.MMULT(m.TRANSPOSE(x), x);
             XTX = m.INVERSE(XTX);
             XTY = m.MMULT(m.TRANSPOSE(x), Y);
@@ -77,7 +79,9 @@ class statpack {
         {
             int p = x.size(), n = x[0].size();
             double factor = 1.0 / (double) p;
+            // Generates a vector where each value is 1
             std::vector<std::vector<double>> ones = m.LINEAR(m.nums(1.0, p));
+            // Computes the mean of each column of the matrix
             ones = m.TRANSPOSE(ones);
             ones = m.MMULT(ones, x);
             ones = m.COEF(factor, ones);
@@ -90,9 +94,11 @@ class statpack {
             std::vector<std::vector<double>> res, Xu, px, sd, sdx;
             std::vector<std::vector<double>> mean;
             mean = m.TRANSPOSE(Mean(x));
-            Xu = m.SUBMATRIX(x, m.SINGLE(mean));
-            res = m.MMULT(m.TRANSPOSE(Xu), Xu);
+            Xu = m.SUBMATRIX(x, m.SINGLE(mean)); // Subtracts the mean from the inputted matrix
+            res = m.COEF(1.0/((double) x.size() - 1), m.MMULT(m.TRANSPOSE(Xu), Xu)); // Computes covariance
             if(vtype == "Correlation"){
+                // Takes diagonal of covar matrix, square roots it, then multiplies the vector by its transpose and 
+                // calculates the correlation matrix through the matrix divider function
                 px = m.LINEAR(m.DIAGONAL(res));
                 sd = m.POWER(px, 0.5);
                 sdx = m.MMULT(sd, m.TRANSPOSE(sd));
@@ -107,15 +113,18 @@ class statpack {
         std::vector<std::vector<double>> TargetRatePortfolio(std::vector<std::vector<double>> x, double r)
         {
             std::vector<std::vector<double>> cov = Variance(x, "Covariance");
+            cov = m.COEF(2.0, cov); // Multiplies covariance matrix by 2
             std::vector<double> mu = m.SINGLE(m.TRANSPOSE(Mean(x)));
-            int n = cov.size();
+            int n = cov.size(); // Takes the length of the covariance matrix
             std::vector<std::vector<double>> res, C, weight;
 
+            // Adds the mean and 1 vector to the covariance matrix
             for(int i = 0; i < n; ++i){
                 cov[i].push_back(mu[i]);
                 cov[i].push_back(1.0);
             }
 
+            // Adds the mean and 1 vector transpose to the bottom of the matrix
             std::vector<double> tA, tB, B;
             for(int i = 0; i < n; ++i){
                 tA.push_back(mu[i]);
@@ -133,8 +142,9 @@ class statpack {
             B.push_back(r);
             B.push_back(1.0);
 
-            C = m.LINEAR(B);
+            C = m.LINEAR(B); // Converts single vector into column vector
 
+            // Calculates the weights using lagrange optimization
             res = m.MMULT(m.INVERSE(cov), C);
             for(int i = 0; i < n; ++i){
                 weight.push_back({res[i]});
@@ -147,14 +157,18 @@ class statpack {
         std::vector<std::vector<double>> MinVarPortfolio(std::vector<std::vector<double>> x)
         {
             std::vector<std::vector<double>> res, cov;
+
+            // Computes covariance matrix, multiplies it by 2.0 and takes the size of it
             cov = Variance(x, "Covariance");
             cov = m.COEF(2.0, cov);
             int n = cov.size();
             
+            // Adds a 1 vector to the end of the covariance matrix
             for(int i = 0; i < n; ++i){
                 cov[i].push_back(1.0);
             }
 
+            // Computes bottom of covariance matrix with 1 vector and converts the bump vector to a column vector
             std::vector<double> temp, bump;
             for(auto & t : cov){
                 temp.push_back(1.0);
@@ -164,6 +178,8 @@ class statpack {
             bump.push_back(1.0);
 
             cov.push_back(temp);
+
+            // Calculates the weights using lagrange optimization
             cov = m.MMULT(m.INVERSE(cov), m.LINEAR(bump));
 
             for(int i = 0; i < n; ++i){
@@ -179,13 +195,18 @@ class statpack {
             std::vector<std::vector<double>> beta, yhat, e, mtx, sd;
             std::vector<double> tscore, pval;
             int n = y.size();
+
+            // Calculates beta values
             beta = Regression(x, y);
 
+            // Computes inputs
             yhat = m.MMULT(x, beta);
             double y_mu = m.mean(y);
             for(int i = 0; i < n; ++i){
                 e.push_back({y[i] - yhat[i][0]});
             }
+
+            // Calculates RSS, TSS, degrees of freedom, and ESS
             double RSS = m.MMULT(m.TRANSPOSE(e), e)[0][0];
             double TSS = 0;
             for(int i = 0; i < n; ++i){
@@ -193,21 +214,31 @@ class statpack {
             }
             double df = x.size() - x[0].size();
             double ESS = TSS - RSS;
+
+            // Computes R-Squared and Adjusted R-Squared
             double rsq = 1.0 - RSS/TSS;
             double mo = x[0].size() - 1;
             double adj_rsq = 1 - (1 - rsq)*(n - 1)/(n - mo - 1);
+
+            // Computes F statistic
             double F = (ESS/mo)/(RSS/(n - mo - 1));
+
+            // Computes standard error
             double se = sqrt(RSS/(n - mo - 1));
+
+            // Calculates standard deviation measures of each beta and is used to compute test statistic
             double factor = RSS / df;
             mtx = m.INVERSE(m.MMULT(m.TRANSPOSE(x), x));
             mtx = m.COEF(factor, mtx);
             sd = m.POWER(m.LINEAR(m.DIAGONAL(mtx)), 0.5);
             
+            // Computation of test statistic and pvalue (using normal distribution rather than t-distribution)
             for(int i = 0; i < x[0].size(); ++i){
                 tscore.push_back(beta[i][0]/sd[i][0]);
                 pval.push_back(N(tscore[i]));
             }
             
+            // Prints out ANOVA table
             std::cout << std::endl;
             std::cout << "ANOVA Regression Table\n" << std::endl;
             std::cout << "R-Squared: " << rsq << std::endl;

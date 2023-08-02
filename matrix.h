@@ -15,6 +15,8 @@ class matrix {
         {
             int n = x.size(), m = x[0].size();
             std::cout << "\nMatrix Dimensions: " << n << " x " << m << std::endl;
+
+            // Loops through the double vector in order to print out output
             for(auto & i : x){
                 for(auto & j : i){
                     std::cout << j << "\t";
@@ -30,6 +32,7 @@ class matrix {
             std::vector<std::vector<double>> res;
             std::vector<double> temp;
 
+            // Makes sure all diagonal values = 1 and other = 0
             for(int i = 0; i < n; ++i){
                 temp.clear();
                 for(int j = 0; j < n; ++j){
@@ -55,6 +58,7 @@ class matrix {
             int n = x[0].size();
             int o = y[0].size();
 
+            // Multiplies matrix row i by second matrix column j
             for(int i = 0; i < m; ++i){
                 temp.clear();
                 for(int j = 0; j < o; ++j){
@@ -79,6 +83,7 @@ class matrix {
 
             int n = x.size();
 
+            // Gaussian Elimination on bottom half
             for(int i = 1; i < n; ++i){
                 for(int j = 0; j < i; ++j){
                     A = x[i][j];
@@ -90,6 +95,7 @@ class matrix {
                 }
             }
 
+            // Gaussian Elimination on top half
             for(int i = 1; i < n; ++i){
                 for(int j = 0; j < i; ++j){
                     A = x[j][i];
@@ -101,6 +107,7 @@ class matrix {
                 }
             }
 
+            // Divides identity matrix values from x diagonal values
             for(int i = 0; i < n; ++i){
                 for(int j = 0; j < n; ++j){
                     I[i][j] /= x[i][i];
@@ -118,6 +125,7 @@ class matrix {
 
             int m = x.size(), n = x[0].size();
 
+            // Shifts the rows and columns to be row=column, column=row
             for(int i = 0; i < n; ++i){
                 temp.clear();
                 for(int j = 0; j < m; ++j){
@@ -139,7 +147,8 @@ class matrix {
             if(direction == "Right"){
                 x = TRANSPOSE(x);
             }
-
+            
+            // Gaussian Elimination to create a diagonal matrix
             for(int i = 1; i < n; ++i){
                 for(int j = 0; j < i; ++j){
                     A = x[i][j];
@@ -163,6 +172,7 @@ class matrix {
             x = DIAGONALIZE(x, "Left");
             x = DIAGONALIZE(x, "Right");
             double total = 1.0;
+            // Takes the product of diagonalized matrix to compute determenant
             for(int i = 0; i < x.size(); ++i){
                 total *= x[i][i];
             }
@@ -173,6 +183,7 @@ class matrix {
         double TRACE(std::vector<std::vector<double>> x)
         {
             double total = 0;
+            // Takes the sum of the diagonals
             for(int i = 0; i < x.size(); ++i){
                 total += x[i][i];
             }
@@ -182,6 +193,7 @@ class matrix {
         // Raises matrix to a power
         std::vector<std::vector<double>> POWER(std::vector<std::vector<double>> x, double power)
         {
+            // Raises a matrix to an inputted power
             for(int i = 0; i < x.size(); ++i){
                 for(int j = 0; j < x[0].size(); ++j){
                     x[i][j] = pow(x[i][j], power);
@@ -193,6 +205,7 @@ class matrix {
         // Raises number to the power of a matrix
         std::vector<std::vector<double>> MPOWER(std::vector<std::vector<double>> x, double value)
         {
+            // Creates a matrix exponent for the inputted value to be given the power of
             for(int i = 0; i < x.size(); ++i){
                 for(int j = 0; j < x[0].size(); ++j){
                     x[i][j] = pow(value, x[i][j]);
@@ -207,6 +220,7 @@ class matrix {
             int n = x.size();
             int m = x[0].size();
 
+            // Makes sure each element of the matrix is multiplied by the factor
             for(int i = 0; i < n; ++i){
                 for(int j = 0; j < m; ++j){
                     x[i][j] *= a;
@@ -219,6 +233,7 @@ class matrix {
         // Adds a matrix and a vector
         std::vector<std::vector<double>> ADDMATRIX(std::vector<std::vector<double>> x, std::vector<double> y)
         {
+            // Adds a single vector to a matrix
             for(int i = 0; i < x.size(); ++i){
                 for(int j = 0; j < y.size(); ++j){
                     x[i][j] += y[j];
@@ -230,6 +245,7 @@ class matrix {
         // Subtracts a matrix and a vector
         std::vector<std::vector<double>> SUBMATRIX(std::vector<std::vector<double>> x, std::vector<double> y)
         {
+            // Subtracts a single vector from a matrix
             for(int i = 0; i < x.size(); ++i){
                 for(int j = 0; j < y.size(); ++j){
                     x[i][j] -= y[j];
@@ -243,6 +259,8 @@ class matrix {
         {
             std::vector<std::vector<double>> res;
             std::vector<double> temp;
+
+            // Divides matrix x by matrix y (used in correlation matrix computation)
             for(int i = 0; i < x.size(); ++i){
                 temp.clear();
                 for(int j = 0; j < x[0].size(); ++j){

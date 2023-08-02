@@ -27,6 +27,7 @@ int main()
     x = s.RegIntercept(x);
     s.ANOVA(x, y);
 
+    
 
     return 0;
 }
