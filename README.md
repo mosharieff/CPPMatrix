@@ -1,6 +1,14 @@
 # C++ Matrix Algebra Library :microscope:
 I wrote a simple matrix algebra library in C++ in this repository. Some of its features include matrix multiplication, inverse matrix, transpose, diagonalizing, exponent matrix, and matrix exponent. Additionally there is another class called 'statpack' in this repository which generates an ANOVA table for linear regression, calculates a min-variance/target-rate portfolio weights, along with calculating mean, variance, and standard deviation matrix formulas.
+
+
+## Compiling Program
+```sh
+g++ test.cpp -std=c++11
+```
+
 <br/>
+
 ## StatPack Functions :computer:
 Adds a 1.0 to the beginning of each row of a data frame vector to be used to compute the intercept in a linear regerssion
 ```C
