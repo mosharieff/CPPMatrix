@@ -10,6 +10,27 @@ g++ test.cpp -std=c++11 or ./o.sh
 <br/>
 
 ## StatPack Functions :computer:
+Imports a .csv file and stores it in a string double vector
+```C
+vector<vector<string>> DataFrame(string filename);
+```
+Extracts a double vector from the dataframe given a column name
+```C
+vector<double> PullData(vector<vector<string>> df, string column);
+```
+Using the extracted double vector, a new dataframe could be generated using this
+```C
+vector<vector<double>> BuildDF(vector<vector<double>> x, vector<double> b);
+```
+Calculates percent change in a dataframe
+```C
+vector<vector<double>> RateOfReturn(vector<vector<double>> x, string side=["new","old"]);
+```
+Calculates percent change in a vector
+```C
+vector<double> PRateOfReturn(vector<double> x, string side=["new","old"]);
+```
+
 Adds a 1.0 to the beginning of each row of a data frame vector to be used to compute the intercept in a linear regerssion
 ```C
 vector<vector<double>> RegIntercept(vector<vector<double>> x);
