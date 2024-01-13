@@ -310,7 +310,7 @@ class statpack {
             double se = sqrt(RSS/(n - mo - 1));
 
             // Calculates standard deviation measures of each beta and is used to compute test statistic
-            double factor = RSS / df;
+            double factor = RSS / (df - 2);
             mtx = m.INVERSE(m.MMULT(m.TRANSPOSE(x), x));
             mtx = m.COEF(factor, mtx);
             sd = m.POWER(m.LINEAR(m.DIAGONAL(mtx)), 0.5);
